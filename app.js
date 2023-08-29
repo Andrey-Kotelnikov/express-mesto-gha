@@ -27,7 +27,7 @@ app.use((req, res, next) => {
 
 app.use('/users', userRouter); // Настраиваем роуты для users
 app.use('/cards', cardRouter); // Настраиваем роуты для cards
-app.all('*', (req, res) => {
+app.use('*', (req, res) => {
   res.status(404).send({message: 'Неверный путь'});
 })
 

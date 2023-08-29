@@ -1,30 +1,8 @@
 const Card = require('../models/card');
 
-class ValidationError extends Error {
-  constructor(message) {
-    super(message);
-    this.name = "ValidationError";
-    this.statusCode = 400;
-  }
-}
-
-class CastError extends Error {
-  constructor(message) {
-    super(message);
-    this.name = "CastError";
-    this.statusCode = 404;
-  }
-}
-
-class ServerError extends Error {
-  constructor(message) {
-    super(message);
-    this.name = "ServerError";
-    this.statusCode = 500;
-  }
-}
-
-
+const serverError = 500;
+const validError = 400;
+const notFoundError = 404;
 
 // Получение всех карточек
 module.exports.getCards = (req, res) => {
@@ -32,7 +10,7 @@ module.exports.getCards = (req, res) => {
     .populate({path: 'user', strictPopulate: false})
     .exec()
     .then(cards => res.send(cards))
-    .catch(err => res.status(500).send({message: 'Ошибка сервера'}));
+    .catch(err => res.status(serverError).send({message: 'Ошибка сервера'}));
 };
 
 // Создание карточки
@@ -43,11 +21,11 @@ module.exports.createCard = (req, res) => {
     .then(card => res.send(card))
     .catch(err => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({
+        res.status(validError).send({
           message: `${Object.values(err.errors).map((err) => err.message).join(', ')}`
         });
       } else {
-        res.status(500).send({message: 'Ошибка сервера'});
+        res.status(serverError).send({message: 'Ошибка сервера'});
       }
     });
   };
@@ -57,15 +35,15 @@ module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.id)
     .then(card => {
       if (!card) {
-        res.status(404).send({message: 'Карточка не найдена'})
+        res.status(notFoundError).send({message: 'Карточка не найдена'})
       }
       res.send({ data: card })
     })
     .catch(err => {
       if (err.name === 'CastError') {
-        res.status(400).send({message: "Некорректный id"});
+        res.status(validError).send({message: "Некорректный id"});
       } else {
-        res.status(500).send({message: 'Ошибка сервера'});
+        res.status(serverError).send({message: 'Ошибка сервера'});
       }
     });
 };
@@ -78,15 +56,15 @@ module.exports.likeCard = (req, res) => {
     {new: true}
   ).then(card => {
     if (!card) {
-      res.status(404).send({message: 'Карточка не найдена'});
+      res.status(notFoundError).send({message: 'Карточка не найдена'});
     }
     res.send({ data: card });
   })
   .catch(err => {
     if (err.name === 'CastError') {
-      res.status(400).send({message: "Некорректный id"});
+      res.status(validError).send({message: "Некорректный id"});
     } else {
-      res.status(500).send({message: 'Ошибка сервера'});
+      res.status(serverError).send({message: 'Ошибка сервера'});
     }
   });
 };
@@ -99,15 +77,15 @@ module.exports.dislikeCard = (req, res) => {
     {new: true}
   ).then(card => {
     if (!card) {
-      res.status(404).send({message: 'Карточка не найдена'})
+      res.status(notFoundError).send({message: 'Карточка не найдена'})
     }
     res.send({ data: card })
   })
   .catch(err => {
     if (err.name === 'CastError') {
-      res.status(400).send({message: "Некорректный id"});
+      res.status(validError).send({message: "Некорректный id"});
     } else {
-      res.status(500).send({message: 'Ошибка сервера'});
+      res.status(serverError).send({message: 'Ошибка сервера'});
     }
   });
 };

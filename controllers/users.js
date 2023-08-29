@@ -1,11 +1,14 @@
-const { default: mongoose } = require('mongoose');
 const User = require('../models/user');
+
+const serverError = 500;
+const validError = 400;
+const notFoundError = 404;
 
 // Получение всех пользователей
 module.exports.getUsers = (req, res) => {
   User.find({})
     .then(users => res.send(users))
-    .catch(err => res.status(500).send({message: 'Ошибка сервера'}));
+    .catch(err => res.status(serverError).send({message: 'Ошибка сервера'}));
 };
 
 // Получение пользователя по id
@@ -14,15 +17,15 @@ module.exports.getUserById = (req, res) => {
   User.findById(req.params.id)
     .then(user => {
       if (!user) {
-        res.status(404).send({message: 'Пользователь не найден'})
+        res.status(notFoundError).send({message: 'Пользователь не найден'})
       }
       res.send({ data: user })
     })
     .catch(err => {
       if (err.name === 'CastError') {
-        res.status(400).send({message: "Некорректный id"});
+        res.status(validError).send({message: "Некорректный id"});
       } else {
-        res.status(500).send({message: 'Ошибка сервера'});
+        res.status(serverError).send({message: 'Ошибка сервера'});
       }
     });
 };
@@ -35,11 +38,11 @@ module.exports.createUser = (req, res) => {
     .then(user => res.send({ data: user }))
     .catch(err => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({
+        res.status(validError).send({
           message: `${Object.values(err.errors).map((err) => err.message).join(', ')}`
         });
       } else {
-        res.status(500).send({message: 'Ошибка сервера'});
+        res.status(serverError).send({message: 'Ошибка сервера'});
       }
     })
 };
@@ -59,17 +62,17 @@ module.exports.updateUser = (req, res) => {
   )
     .then(user => {
       if (!user) {
-        res.status(404).send({message: 'Пользователь не найден'})
+        res.status(notFoundError).send({message: 'Пользователь не найден'})
       }
       res.send({ data: user})
     })
     .catch(err => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({
+        res.status(validError).send({
           message: `${Object.values(err.errors).map((err) => err.message).join(', ')}`
         });
       } else {
-        res.status(500).send({message: 'Ошибка сервера'});
+        res.status(serverError).send({message: 'Ошибка сервера'});
       }
     })
 };
@@ -89,17 +92,17 @@ module.exports.updateAvatar = (req, res) => {
   )
     .then(user => {
       if (!user) {
-        res.status(404).send({message: 'Пользователь не найден'})
+        res.status(notFoundError).send({message: 'Пользователь не найден'})
       }
       res.send({data: user})
     })
     .catch(err => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({
+        res.status(validError).send({
           message: `${Object.values(err.errors).map((err) => err.message).join(', ')}`
         });
       } else {
-        res.status(500).send({message: 'Ошибка сервера'});
+        res.status(serverError).send({message: 'Ошибка сервера'});
       }
     })
 };
