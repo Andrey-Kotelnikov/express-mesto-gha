@@ -61,8 +61,12 @@ module.exports.deleteCard = (req, res) => {
       }
       res.send({ data: card })
     })
-    .catch((err) => {
-      res.status(500).send({message: 'Ошибка сервера'})
+    .catch(err => {
+      if (err.name === 'CastError') {
+        res.status(400).send({message: "Некорректный id"});
+      } else {
+        res.status(500).send({message: 'Ошибка сервера'});
+      }
     });
 };
 
@@ -79,10 +83,8 @@ module.exports.likeCard = (req, res) => {
     res.send({ data: card });
   })
   .catch(err => {
-    if (err.name === 'ValidationError') {
-      res.status(400).send({
-        message: `${Object.values(err.errors).map((err) => err.message).join(', ')}`
-      });
+    if (err.name === 'CastError') {
+      res.status(400).send({message: "Некорректный id"});
     } else {
       res.status(500).send({message: 'Ошибка сервера'});
     }
@@ -102,10 +104,8 @@ module.exports.dislikeCard = (req, res) => {
     res.send({ data: card })
   })
   .catch(err => {
-    if (err.name === 'ValidationError') {
-      res.status(400).send({
-        message: `${Object.values(err.errors).map((err) => err.message).join(', ')}`
-      });
+    if (err.name === 'CastError') {
+      res.status(400).send({message: "Некорректный id"});
     } else {
       res.status(500).send({message: 'Ошибка сервера'});
     }

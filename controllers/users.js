@@ -1,3 +1,4 @@
+const { default: mongoose } = require('mongoose');
 const User = require('../models/user');
 
 // Получение всех пользователей
@@ -19,9 +20,7 @@ module.exports.getUserById = (req, res) => {
     })
     .catch(err => {
       if (err.name === 'CastError') {
-        res.status(400).send({
-          message: `${Object.values(err.errors).map((err) => err.message).join(', ')}`
-        });
+        res.status(400).send({message: "Некорректный id"});
       } else {
         res.status(500).send({message: 'Ошибка сервера'});
       }
