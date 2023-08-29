@@ -18,7 +18,7 @@ module.exports.getUserById = (req, res) => {
       res.send({ data: user })
     })
     .catch(err => {
-      if (err.name === 'AssertionError') {
+      if (err.name === 'CastError') {
         res.status(400).send({
           message: `${Object.values(err.errors).map((err) => err.message).join(', ')}`
         });
