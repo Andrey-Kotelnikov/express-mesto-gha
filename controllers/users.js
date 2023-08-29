@@ -42,7 +42,15 @@ module.exports.getUserById = (req, res) => {
       }
       res.send({ data: user })
     })
-    .catch(err => res.status(500).send({message: 'Ошибка сервера'}));
+    .catch(err => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send({
+          message: `${Object.values(err.errors).map((err) => err.message).join(', ')}`
+        });
+      } else {
+        res.status(500).send({message: 'Ошибка сервера'});
+      }
+    });
 };
 
 // Создание пользователя
