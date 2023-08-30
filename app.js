@@ -1,19 +1,21 @@
 const express = require('express');
 const mongooose = require('mongoose');
 const process = require('process');
+const helmet = require('helmet');
 const bodyParser = require('body-parser');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 
-const { PORT = 3000 } = process.env; // Слушаем 3000 порт
+const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 
 const app = express();
 
 // Используем сборщик данных
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(helmet());
 
-mongooose.connect('mongodb://127.0.0.1:27017/mestodb', {
+mongooose.connect(DB_URL, {
   useNewUrlParser: true
 }).then(() => {console.log('Подключено к mongoDB')});
 
