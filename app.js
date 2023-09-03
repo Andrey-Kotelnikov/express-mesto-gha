@@ -4,11 +4,12 @@ const process = require('process');
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
 const { errors, celebrate, Joi } = require('celebrate');
+const cookieParser = require('cookie-parser');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
-const { required } = require('joi');
+//const { required } = require('joi');
 
 const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 
@@ -18,6 +19,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(helmet()); // Используем защиту
+app.use(cookieParser()); // Сборщик кук
 
 // Подключение к БД
 mongooose.connect(DB_URL, {
@@ -41,7 +43,7 @@ app.post('/signup', celebrate({
     about: Joi.string().min(2).max(30),
   }),
 }), createUser); // Роут регистрации
-app.use('/users', auth, userRouter); // Настраиваем роуты для users
+app.use('/users', /*auth,*/ userRouter); // Настраиваем роуты для users
 app.use('/cards', auth, cardRouter); // Настраиваем роуты для cards
 app.use('*', (req, res) => { // Остальные пути
   res.status(404).send({message: 'Неверный путь'});

@@ -5,6 +5,7 @@ const { NotFoundError, UnauthorizedError, ValidationError, ExistError } = requir
 
 // Получение всех пользователей
 module.exports.getUsers = (req, res, next) => {
+  console.log(req.cookies.jwt)
   User.find({})
     .then(users => res.send(users))
     .catch(next);
@@ -109,12 +110,14 @@ module.exports.login = (req, res, next) => {
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign(
-        { _id: user._id },
-        'key',
-        { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, 'key', { expiresIn: '7d' });
 
-      res.send({ token })
+      //res.send({ token })
+      res.cookie('jwt', token, {
+        maxAge: 3600000 * 24 * 7,
+        httpOnly: true,
+      }).send({message: 'Успех: в куки записан jwt'})
+      .end();
     })
     .catch(err => {
       next(new UnauthorizedError('Неверный логин или пароль'));
