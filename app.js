@@ -8,7 +8,7 @@ const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
-const regex = require('../utils/utils');
+const regex = require('./utils/utils');
 //const { userValidation } = require('./middlewares/joiValidation')
 
 const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
