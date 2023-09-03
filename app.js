@@ -27,7 +27,7 @@ app.post('/signin', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().pattern(regex),
+    avatar: Joi.string().pattern(/^https?:\/\/w?w?w?\.?[0-9a-z\-\._~:\/\?\#\[\]\@!\$&'\(\)\*\+\,\;\=]{1,}\#?/mig),
   }),
 }), login); // Роут логина
 app.post('/signup', celebrate({
