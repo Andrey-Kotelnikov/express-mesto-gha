@@ -8,6 +8,7 @@ const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
+const { required } = require('joi');
 
 const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 
@@ -25,6 +26,8 @@ mongooose.connect(DB_URL, {
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
     avatar: Joi.string().pattern(/^https?:\/\/w?w?w?\.?[0-9a-z\-\._~:\/\?\#\[\]\@!\$&'\(\)\*\+\,\;\=]{1,}\#?/mi),
@@ -32,6 +35,8 @@ app.post('/signin', celebrate({
 }), login); // Роут логина
 app.post('/signup', celebrate({
   body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
   }),
