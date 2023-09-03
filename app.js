@@ -8,6 +8,7 @@ const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth')
+const { userValidation } = require('./middlewares/joiValidation')
 
 const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 
@@ -23,18 +24,8 @@ mongooose.connect(DB_URL, {
   useNewUrlParser: true
 }).then(() => {console.log('Подключено к mongoDB')});
 
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-  }),
-}), login); // Роут логина
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-  }),
-}), createUser); // Роут регистрации
+app.post('/signin', userValidation, login); // Роут логина
+app.post('/signup', userValidation, createUser); // Роут регистрации
 app.use('/users', auth, userRouter); // Настраиваем роуты для users
 app.use('/cards', auth, cardRouter); // Настраиваем роуты для cards
 app.use('*', (req, res) => { // Остальные пути
