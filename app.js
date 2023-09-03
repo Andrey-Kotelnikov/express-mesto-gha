@@ -24,8 +24,20 @@ mongooose.connect(DB_URL, {
   useNewUrlParser: true
 }).then(() => {console.log('Подключено к mongoDB')});
 
-app.post('/signin', userValidation, login); // Роут логина
-app.post('/signup', userValidation, createUser); // Роут регистрации
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().pattern(regex),
+  }),
+}), login); // Роут логина
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().pattern(regex),
+  }),
+}), createUser); // Роут регистрации
 app.use('/users', auth, userRouter); // Настраиваем роуты для users
 app.use('/cards', auth, cardRouter); // Настраиваем роуты для cards
 app.use('*', (req, res) => { // Остальные пути
