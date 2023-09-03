@@ -43,7 +43,7 @@ app.post('/signup', celebrate({
     about: Joi.string().min(2).max(30),
   }),
 }), createUser); // Роут регистрации
-app.use('/users', /*auth,*/ userRouter); // Настраиваем роуты для users
+app.use('/users', auth, userRouter); // Настраиваем роуты для users
 app.use('/cards', auth, cardRouter); // Настраиваем роуты для cards
 app.use('*', (req, res) => { // Остальные пути
   res.status(404).send({message: 'Неверный путь'});

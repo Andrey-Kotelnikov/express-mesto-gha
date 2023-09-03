@@ -1,15 +1,15 @@
 const jwt = require('jsonwebtoken');
 
 module.exports = (req, res, next) => {
-  const { authorization } = req.headers;
+  const { cookie } = req.headers;
 
   // Проверка наличия токена и его начало bearer
-  if (!authorization || !authorization.startsWith('Bearer ')) {
+  if (!cookie || !cookie.startsWith('jwt=')) {
     return res.status(401).send({ message: 'Необходима авторизация' })
   }
 
   // Достанем токен
-  const token = authorization.replace('Bearer ', '');
+  const token = cookie.replace('jwt=', '');
   let payload;
 
   // Верификация токена
