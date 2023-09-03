@@ -1,4 +1,4 @@
-const { celebrate, Joi } = require('celebrate');
+/*const { celebrate, Joi } = require('celebrate');
 const regex = require('../utils/utils');
 
 const userValidation = celebrate({
@@ -11,4 +11,4 @@ const userValidation = celebrate({
 
 module.exports = {
   userValidation
-}
+}*/
