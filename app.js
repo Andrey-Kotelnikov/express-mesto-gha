@@ -3,7 +3,7 @@ const mongooose = require('mongoose');
 const process = require('process');
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
-const { errors } = require('celebrate');
+const { errors, celebrate, Joi } = require('celebrate');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
@@ -23,8 +23,18 @@ mongooose.connect(DB_URL, {
   useNewUrlParser: true
 }).then(() => {console.log('Подключено к mongoDB')});
 
-app.post('/signin', login); // Роут логина
-app.post('/signup', createUser); // Роут регистрациb
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+  }),
+}), login); // Роут логина
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+  }),
+}), createUser); // Роут регистрации
 app.use('/users', auth, userRouter); // Настраиваем роуты для users
 app.use('/cards', auth, cardRouter); // Настраиваем роуты для cards
 app.use('*', (req, res) => { // Остальные пути
