@@ -7,7 +7,8 @@ const { errors, celebrate, Joi } = require('celebrate');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
-const auth = require('./middlewares/auth')
+const auth = require('./middlewares/auth');
+const regex = require('./utils/utils')
 
 const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 
@@ -33,6 +34,7 @@ app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
+    avatar: Joi.string().pattern(regex)
   }),
 }), createUser); // Роут регистрации
 app.use('/users', auth, userRouter); // Настраиваем роуты для users
