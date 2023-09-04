@@ -3,7 +3,7 @@ const { UnauthorizedError } = require('../utils/errors');
 
 module.exports = (req, res, next) => {
   const authCookie = req.cookies.jwt;
-  console.log(authCookie)
+  //console.log(authCookie)
 
   // Проверка наличия токена и его начало bearer
   if (!authCookie) {
@@ -16,14 +16,14 @@ module.exports = (req, res, next) => {
   let payload;
 
   // Верификация токена
-  try {
-    payload = jwt.verify(token, 'key');
-  } catch (err) {
-    next(new UnauthorizedError('Необходима авторизация'))
-    //return err.status(401).send({ message: 'Необходима авторизация' })
-  }
-
-  req.user = payload; // Запись пейлоуда в запрос
+  jwt.verify(token, 'key', (err, decoded) => {
+    if (err) {
+      next(new UnauthorizedError('Необходима авторизация'));
+    }
+    payload = decoded;
+  });
+  console.log(payload._id)
+  req.user = payload._id; // Запись пейлоуда в запрос
 
   next();
 };
