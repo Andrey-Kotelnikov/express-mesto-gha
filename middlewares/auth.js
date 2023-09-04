@@ -7,7 +7,7 @@ module.exports = (req, res, next) => {
 
   // Проверка наличия кук
   if (!authCookie) {
-    throw new UnauthorizedError('Необходима авторизация')
+    throw new UnauthorizedError('Необходима авторизация: нет токена')
     //return res.status(401).send({ message: 'Необходима авторизация' })
   }
 
@@ -18,12 +18,12 @@ module.exports = (req, res, next) => {
   // Верификация токена
   jwt.verify(token, 'key', (err, decoded) => {
     if (err) {
-      next(new UnauthorizedError('Необходима авторизация'));
+      next(new UnauthorizedError('Необходима авторизация: токен неверный'));
     }
     payload = decoded;
   });
-  console.log(payload._id)
-  req.user._id = payload._id; // Запись пейлоуда в запрос
+  console.log(payload)
+  req.user = payload; // Запись пейлоуда в запрос
 
   next();
 };
