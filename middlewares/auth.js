@@ -8,7 +8,9 @@ module.exports = (req, res, next) => {
 
   // Проверка наличия кук
   if (!authCookie) {
-    throw new UnauthorizedError('Необходима авторизация: нет токена')
+    //throw new UnauthorizedError('Необходима авторизация: нет токена')
+
+    return next(new UnauthorizedError('Необходима авторизация: нет токена'));
     //return res.status(401).send({ message: 'Необходима авторизация' })
   }
 
