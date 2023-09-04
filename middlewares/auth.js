@@ -5,7 +5,7 @@ module.exports = (req, res, next) => {
   const authCookie = req.cookies.jwt;
   //console.log(authCookie)
 
-  // Проверка наличия токена и его начало bearer
+  // Проверка наличия кук
   if (!authCookie) {
     throw new UnauthorizedError('Необходима авторизация')
     //return res.status(401).send({ message: 'Необходима авторизация' })
@@ -23,7 +23,7 @@ module.exports = (req, res, next) => {
     payload = decoded;
   });
   console.log(payload._id)
-  req.user = payload._id; // Запись пейлоуда в запрос
+  req.user._id = payload._id; // Запись пейлоуда в запрос
 
   next();
 };
