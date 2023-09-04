@@ -1,5 +1,6 @@
-const jwt = require('jsonwebtoken');
+const { jwt } = require('jsonwebtoken');
 const { UnauthorizedError } = require('../utils/errors');
+const {JWT_SECRET = 'key'} = process.env;
 
 module.exports = (req, res, next) => {
   const authCookie = req.cookies.jwt;
@@ -16,7 +17,7 @@ module.exports = (req, res, next) => {
   let payload;
 
   // Верификация токена
-  jwt.verify(token, 'key', (err, decoded) => {
+  jwt.verify(token, JWT_SECRET, (err, decoded) => {
     if (err) {
       next(new UnauthorizedError('Необходима авторизация: токен неверный'));
     }
