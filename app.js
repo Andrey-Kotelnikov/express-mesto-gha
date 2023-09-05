@@ -34,7 +34,7 @@ app.use(rateLimit({ // Ограничитель кол-ва запросов
 	max: 100,
 	standardHeaders: 'draft-7',
 	legacyHeaders: false,
-})); 
+}));
 
 app.post('/signin', validationSignin, login); // Роут логина
 app.post('/signup', validationSignup, createUser); // Роут регистрации
@@ -48,7 +48,7 @@ app.use('*', auth, (req, res, next) => { // Остальные пути
 // Обработчик ошибок приходящих от celebrate
 app.use(errors());
 
-// Обработчик неотловленных ошибок
+// Обработчик неотловленных ошибок //
 /*process.on('uncaughtException', (err, origin) => {
   console.log(`${origin} ${err.name} c текстом ${err.message} не была обработана. Обратите внимание!`);
 })*/
