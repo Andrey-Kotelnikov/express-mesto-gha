@@ -26,17 +26,6 @@ module.exports = (req, res, next) => {
   } catch (err) {
     return next(new UnauthorizedError('Необходима авторизация: токен неверный'));
   }
-
-
-
-
-
-  /*jwt.verify(token, JWT_SECRET, (err, decoded) => {
-    if (err) {
-      next(new UnauthorizedError('Необходима авторизация: токен неверный'));
-    }
-    payload = decoded;
-  });*/
   console.log(payload)
   req.user = payload; // Запись пейлоуда в запрос
 
