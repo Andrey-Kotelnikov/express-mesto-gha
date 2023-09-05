@@ -1,6 +1,6 @@
 const { default: mongoose } = require('mongoose');
 const Card = require('../models/card');
-const { ValidationError, NotFoundError, UnauthorizedError } = require('../utils/errors');
+const { ValidationError, NotFoundError, UnauthorizedError, AccessError } = require('../utils/errors');
 
 // Получение всех карточек
 module.exports.getCards = (req, res, next) => {
@@ -32,7 +32,7 @@ module.exports.deleteCard = (req, res, next) => {
     .orFail(new NotFoundError('Карточка не найдена'))
     .then((card) => {
       if (card.owner !== req.user._id) {
-        throw new UnauthorizedError('Нельзя удалять карточки других пользователей')
+        throw new AccessError('Нельзя удалять карточки других пользователей');
       }
       Card.findByIdAndRemove(req.params.cardId)
         .then(card => res.send({ data: card }))

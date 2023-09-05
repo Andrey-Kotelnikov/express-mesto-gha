@@ -3,8 +3,10 @@ const mongooose = require('mongoose');
 const process = require('process');
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
-const { errors, celebrate, Joi } = require('celebrate');
+const { celebrate, Joi } = require('celebrate');
+const {errors} = require('celebrate');
 const cookieParser = require('cookie-parser');
+
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
@@ -15,44 +17,47 @@ const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.en
 
 const app = express();
 
-// Используем сборщик данных
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(helmet()); // Используем защиту
-app.use(cookieParser()); // Сборщик кук
-
 // Подключение к БД
 mongooose.connect(DB_URL, {
   useNewUrlParser: true
 }).then(() => {console.log('Подключено к mongoDB')});
 
+app.use(cookieParser()); // Сборщик кук
+app.use(bodyParser.json()); // Используем сборщик данных
+app.use(bodyParser.urlencoded({ extended: true }));
+//app.use(helmet()); // Используем защиту
+
 app.post('/signin', celebrate({
   body: Joi.object().keys({
-    email: Joi.string().required()/*.email()*/,
+    email: Joi.string().required().email(),
     password: Joi.string().required(),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
     avatar: Joi.string().pattern(/^https?:\/\/w?w?w?\.?[0-9a-z\-\._~:\/\?\#\[\]\@!\$&'\(\)\*\+\,\;\=]{1,}\#?/mi),
-  }),
+  }).unknown(true),
 }), login); // Роут логина
 app.post('/signup', celebrate({
   body: Joi.object().keys({
-    email: Joi.string().required()/*.email()*/,
+    email: Joi.string().required().email(),
     password: Joi.string().required(),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
+    avatar: Joi.string(),
   }),
 }), createUser); // Роут регистрации
-app.use('/users', auth, userRouter); // Настраиваем роуты для users
-app.use('/cards', auth, cardRouter); // Настраиваем роуты для cards
+
+app.use(auth);
+
+app.use('/users', userRouter); // Настраиваем роуты для users
+app.use('/cards', cardRouter); // Настраиваем роуты для cards
 app.use('*', (req, res) => { // Остальные пути
   res.status(404).send({message: 'Неверный путь'});
 });
 
 // Обработчик неотловленных ошибок
-process.on('uncaughtException', (err, origin) => {
+/*process.on('uncaughtException', (err, origin) => {
   console.log(`${origin} ${err.name} c текстом ${err.message} не была обработана. Обратите внимание!`);
-})
+})*/
 
 // Обработчик ошибок приходящих от celebrate
 app.use(errors());

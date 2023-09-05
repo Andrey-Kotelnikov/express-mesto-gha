@@ -7,14 +7,14 @@ const { JWT_SECRET = 'key' } = process.env;
 // Получение всех пользователей
 module.exports.getUsers = (req, res, next) => {
   console.log(req.cookies.jwt)
-  User.find({})
+  return User.find({})
     .then(users => res.send(users))
     .catch(next);
 };
 
 // Получение пользователя по id
 module.exports.getUserById = (req, res, next) => {
-  User.findById(req.params.id)
+  return User.findById(req.params.id)
     .orFail(new NotFoundError('Пользователь не найден')) // В случае ненахода пользователя
     .then(user => res.send({ data: user }))
     .catch(err => {
@@ -28,7 +28,7 @@ module.exports.getUserById = (req, res, next) => {
 
 // Получение информации о себе
 module.exports.getUserMe = (req, res, next) => {
-  User.findById(req.user._id)
+  return User.findById(req.user._id)
     //.orFail(new Error('NotValidId'))
     .then(user => res.send({ data: user }))
     .catch(next);
@@ -46,12 +46,10 @@ module.exports.createUser = (req, res, next) => {
     .catch(err => {
       console.log(err)
       if (err.code === 11000) {
-        next(new ExistError('Такой пользователь существует'));
-        return;
+        return next(new ExistError('Такой пользователь существует'));
       }
       if (err.name === 'ValidationError') {
-        next(new ValidationError(`${Object.values(err.errors).map((err) => err.message).join(', ')}`))
-        return;
+        return next(new ValidationError(`${Object.values(err.errors).map((err) => err.message).join(', ')}`))
         /*res.status(validError).send({
           message: `${Object.values(err.errors).map((err) => err.message).join(', ')}`
         });*/
@@ -77,15 +75,14 @@ module.exports.updateUser = (req, res, next) => {
     .catch(err => {
       console.log(err)
       if (err.name === 'ValidationError') {
-        next(new ValidationError(`${Object.values(err.errors).map((err) => err.message).join(', ')}`))
-        return;
+        return next(new ValidationError(`${Object.values(err.errors).map((err) => err.message).join(', ')}`))
       }
       next(err);
     })
 };
 
 // Обновление аватара
-module.exports.updateAvatar = (req, res) => {
+module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(
@@ -101,14 +98,13 @@ module.exports.updateAvatar = (req, res) => {
     .catch(err => {
       console.log(err)
       if (err.name === 'ValidationError') {
-        next(new ValidationError(`${Object.values(err.errors).map((err) => err.message).join(', ')}`))
-        return;
+        return next(new ValidationError(`${Object.values(err.errors).map((err) => err.message).join(', ')}`))
       }
       next(err);
     })
 };
 
-// login
+
 
 
 
@@ -133,7 +129,7 @@ module.exports.updateAvatar = (req, res) => {
 
 
 
-
+// login
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
@@ -141,22 +137,26 @@ module.exports.login = (req, res, next) => {
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        throw new UnauthorizedError('Неправильные почта или пароль')
+        return next(new UnauthorizedError('Неправильные почта или пароль'))
+        //throw new UnauthorizedError('Неправильные почта или пароль')
       }
       bcrypt.compare(password, user.password, function(err, isValidPassword) {
         if (!isValidPassword) {
-          throw new UnauthorizedError('Неправильные почта или пароль');
+          return next(new UnauthorizedError('Неправильные почта или пароль'))
+          //throw new UnauthorizedError('Неправильные почта или пароль');
         }
+        console.log(user._id)
+        const { _id, email, name, about, avatar } = user;
         const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
         return res.cookie('jwt', token, {
           maxAge: 3600000,
           httpOnly: true,
           //sameSite: true,
-        }).send({user});
+        }).send({ _id, email, name, about, avatar });
       });
     })
     .catch(next)
-
+};
 
 
 
@@ -176,4 +176,3 @@ module.exports.login = (req, res, next) => {
     .catch(err => {
       next(new UnauthorizedError('Неверный логин или пароль'));
     })*/
-};
