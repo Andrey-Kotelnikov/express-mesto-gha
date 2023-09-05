@@ -31,7 +31,7 @@ module.exports.deleteCard = (req, res, next) => {
   Card.findOne({ _id: req.params.cardId })
     .orFail(new NotFoundError('Карточка не найдена'))
     .then((card) => {
-      if (card.owner !== req.user._id) {
+      if (card.owner !== req.user) {
         throw new AccessError('Нельзя удалять карточки других пользователей');
       }
       Card.findByIdAndRemove(req.params.cardId)
