@@ -143,20 +143,17 @@ module.exports.login = (req, res, next) => {
       if (!user) {
         throw new UnauthorizedError('Неправильные почта или пароль')
       }
-      bcrypt.compare(password, user.password)
-        .then((matched) => {
-          if (!matched) {
-            throw new UnauthorizedError('Неправильные почта или пароль')
-          }
-
-          const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
-          return res.cookie('jwt', token, {
-            maxAge: 3600000,
-            httpOnly: true,
-            //sameSite: true,
-          }).send({user})
-        })
-        .catch(next);
+      bcrypt.compare(password, user.password, function(err, isValidPassword) {
+        if (!isValidPassword) {
+          throw new UnauthorizedError('Неправильные почта или пароль');
+        }
+        const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
+        return res.cookie('jwt', token, {
+          maxAge: 3600000,
+          httpOnly: true,
+          //sameSite: true,
+        }).send({user});
+      });
     })
     .catch(next)
 
