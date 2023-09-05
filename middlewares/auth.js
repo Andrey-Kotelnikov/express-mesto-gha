@@ -3,10 +3,8 @@ const { UnauthorizedError } = require('../utils/errors');
 const {JWT_SECRET = 'key'} = process.env;
 
 module.exports = (req, res, next) => {
-  console.log(`jwt: ${req.cookies.jwt}`)
   const authCookie = req.cookies.jwt;
-  console.log(`token: ${authCookie}`)
-
+  
   // Проверка наличия кук
   if (!authCookie) {
     //throw new UnauthorizedError('Необходима авторизация: нет токена')
