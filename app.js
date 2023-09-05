@@ -47,7 +47,7 @@ app.use('*', auth, (req, res, next) => { // Остальные пути
 
 // Обработчик ошибок приходящих от celebrate
 app.use(errors());
-app.use()
+
 
 // Обработчик неотловленных ошибок //
 /*process.on('uncaughtException', (err, origin) => {
