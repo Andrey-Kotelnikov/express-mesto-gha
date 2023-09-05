@@ -8,9 +8,14 @@
     "dev": "nodemon app.js",
     "lint": "npx eslint ."
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Andrey-Kotelnikov/express-mesto-gha.git"
+  },
   "keywords": [],
   "author": "Andrey Kotelnikov",
   "license": "ISC",
+  "homepage": "https://github.com/Andrey-Kotelnikov/express-mesto-gha#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
