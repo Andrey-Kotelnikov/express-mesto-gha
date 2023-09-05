@@ -11,8 +11,9 @@ const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
+const {signInValidation} = require('./middlewares/joiValidation')
 const urlRegex = require('./utils/utils');
-//const { required } = require('joi');
+
 
 const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 
@@ -28,15 +29,7 @@ app.use(bodyParser.json()); // Используем сборщик данных
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(helmet()); // Используем защиту
 
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string().pattern(urlRegex),
-  }).unknown(true),
-}), login); // Роут логина
+app.post('/signin', signInValidation, login); // Роут логина
 app.post('/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),

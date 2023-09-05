@@ -34,17 +34,11 @@ module.exports.deleteCard = (req, res, next) => {
       console.log(`создатель карточки: ${card.owner._id}`)
       console.log(`твой id: ${req.user._id}`)
       if (card.owner._id != req.user._id) {
-        return next(new AccessError('Нельзя удалять карточки других пользователей'));
+        throw new AccessError('Нельзя удалять карточки других пользователей');
       }
-      Card.findByIdAndRemove(req.params.cardId)
-        .then(card => res.send({ data: card }))
-        .catch(err => {
-          if (err.name === 'CastError') {
-            next(new ValidationError('Некорректный id'));
-            return;
-          }
-          next(err);
-        });
+      Card.deleteOne(card)
+        .then(() => res.send({ data: card }))
+        .catch(next);
       })
     .catch(err => {
       console.log(err)
