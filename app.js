@@ -11,7 +11,7 @@ const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
-const {signInValidation} = require('./middlewares/joiValidation')
+const {validationSignin} = require('./middlewares/joiValidation')
 const urlRegex = require('./utils/utils');
 
 
@@ -29,7 +29,7 @@ app.use(bodyParser.json()); // Используем сборщик данных
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(helmet()); // Используем защиту
 
-app.post('/signin', signInValidation, login); // Роут логина
+app.post('/signin', validationSignin, login); // Роут логина
 app.post('/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
