@@ -39,7 +39,10 @@ module.exports.createUser = (req, res, next) => {
   const { email, name, about, avatar } = req.body;
   bcrypt.hash(req.body.password, 10)
     .then(hash => User.create({ email, password: hash, name, about, avatar })
-    .then(user => res.status(201).send({ data: user }))
+    .then(user => {
+      const { _id, email, name, about, avatar } = user;
+      res.status(201).send({ _id, email, name, about, avatar });
+    })
     .catch(err => {
       console.log(err)
       if (err.code === 11000) {
@@ -106,10 +109,62 @@ module.exports.updateAvatar = (req, res) => {
 };
 
 // login
+
+
+
+/*userSchema.statics.findUserByCredentials = function (email, password) {
+  return this.findOne({ email }).select('+password')
+    .then((user) => {
+      if (!user) {
+        return Promise.reject(new Error('Неправильные почта или пароль'));
+      }
+      bcrypt.compare(password, user.password)
+      .then((matched) => {
+        console.log(matched + ' login mached');
+        if (!matched) {
+          return Promise.reject(new Error('Неправильные почта или пароль'));
+        }
+        return user;
+      })
+    })
+};*/
+
+
+
+
+
+
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
-  return User.findUserByCredentials(email, password)
+
+  User.findOne({ email }).select('+password')
+    .then((user) => {
+      if (!user) {
+        throw new UnauthorizedError('Неправильные почта или пароль')
+      }
+      bcrypt.compare(password, user.password)
+        .then((matched) => {
+          if (!matched) {
+            throw new UnauthorizedError('Неправильные почта или пароль')
+          }
+
+          const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
+          return res.cookie('jwt', token, {
+            maxAge: 3600000,
+            httpOnly: true,
+            //sameSite: true,
+          }).send({user})
+        })
+        .catch(next);
+    })
+    .catch(next)
+
+
+
+
+
+  /*return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
 
@@ -123,5 +178,5 @@ module.exports.login = (req, res, next) => {
     })
     .catch(err => {
       next(new UnauthorizedError('Неверный логин или пароль'));
-    })
+    })*/
 };
