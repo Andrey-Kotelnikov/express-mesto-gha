@@ -6,14 +6,15 @@ const bodyParser = require('body-parser');
 const { celebrate, Joi } = require('celebrate');
 const {errors} = require('celebrate');
 const cookieParser = require('cookie-parser');
+const {rateLimit} = require('express-rate-limit');
 
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
-const {validationSignin} = require('./middlewares/joiValidation')
-const urlRegex = require('./utils/utils');
-
+const { validationSignin, validationSignup } = require('./middlewares/joi-validation');
+const errorHandler = require('./middlewares/error-handler');
+const { NotFoundError } = require('./utils/errors');
 
 const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 
@@ -28,22 +29,20 @@ app.use(cookieParser()); // Сборщик кук
 app.use(bodyParser.json()); // Используем сборщик данных
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(helmet()); // Используем защиту
+app.use(rateLimit({ // Ограничитель кол-ва запросов
+	windowMs: 60 * 1000, // 1 minute
+	max: 100,
+	standardHeaders: 'draft-7',
+	legacyHeaders: false,
+})); 
 
 app.post('/signin', validationSignin, login); // Роут логина
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string().pattern(urlRegex),
-  }),
-}), createUser); // Роут регистрации
+app.post('/signup', validationSignup, createUser); // Роут регистрации
 
 app.use('/users', auth, userRouter); // Настраиваем роуты для users
 app.use('/cards', auth, cardRouter); // Настраиваем роуты для cards
-app.use('*', auth, (req, res) => { // Остальные пути
-  res.status(404).send({message: 'Неверный путь'});
+app.use('*', auth, (req, res, next) => { // Остальные пути
+  return next(new NotFoundError('Неверный путь'));
 });
 
 // Обработчик ошибок приходящих от celebrate
@@ -55,14 +54,7 @@ app.use(errors());
 })*/
 
 // Централизованный обработчик ошибок
-app.use((err, req, res, next) => {
-  const { statusCode = 500, message} = err;
-  res.status(statusCode).send({
-    message: statusCode === 500
-    ? 'На сервере произошла ошибка'
-    : message
-  })
-})
+app.use(errorHandler)
 
 app.listen(PORT, () => {
     // Если всё работает, консоль покажет, какой порт приложение слушает
