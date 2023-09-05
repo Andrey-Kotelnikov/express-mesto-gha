@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 //const bcrypt = require('bcryptjs');
-const regex = require('../utils/utils');
+const urlRegex = require('../utils/utils');
 //const { UnauthorizedError } = require('../utils/errors');
 
 const userSchema = new mongoose.Schema({
@@ -34,12 +34,12 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String,
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
-    /*validate: {
+    validate: {
       validator: function(v) {
-        return regex.test(v);
+        return urlRegex.test(v);
       },
       message: 'Некорректный URL у поля avatar',
-    },*/
+    },
   },
 
 }, {

@@ -11,6 +11,7 @@ const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
+const urlRegex = require('./utils/utils')
 //const { required } = require('joi');
 
 const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
@@ -25,7 +26,7 @@ mongooose.connect(DB_URL, {
 app.use(cookieParser()); // Сборщик кук
 app.use(bodyParser.json()); // Используем сборщик данных
 app.use(bodyParser.urlencoded({ extended: true }));
-//app.use(helmet()); // Используем защиту
+app.use(helmet()); // Используем защиту
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
@@ -33,7 +34,7 @@ app.post('/signin', celebrate({
     password: Joi.string().required(),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().pattern(/^https?:\/\/w?w?w?\.?[0-9a-z\-\._~:\/\?\#\[\]\@!\$&'\(\)\*\+\,\;\=]{1,}\#?/mi),
+    avatar: Joi.string().pattern(urlRegex),
   }).unknown(true),
 }), login); // Роут логина
 app.post('/signup', celebrate({
@@ -42,25 +43,23 @@ app.post('/signup', celebrate({
     password: Joi.string().required(),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string(),
+    avatar: Joi.string().pattern(urlRegex),
   }),
 }), createUser); // Роут регистрации
 
-app.use(auth);
-
-app.use('/users', userRouter); // Настраиваем роуты для users
-app.use('/cards', cardRouter); // Настраиваем роуты для cards
-app.use('*', (req, res) => { // Остальные пути
+app.use('/users', auth, userRouter); // Настраиваем роуты для users
+app.use('/cards', auth, cardRouter); // Настраиваем роуты для cards
+app.use('*', auth, (req, res) => { // Остальные пути
   res.status(404).send({message: 'Неверный путь'});
 });
+
+// Обработчик ошибок приходящих от celebrate
+app.use(errors());
 
 // Обработчик неотловленных ошибок
 /*process.on('uncaughtException', (err, origin) => {
   console.log(`${origin} ${err.name} c текстом ${err.message} не была обработана. Обратите внимание!`);
 })*/
-
-// Обработчик ошибок приходящих от celebrate
-app.use(errors());
 
 // Централизованный обработчик ошибок
 app.use((err, req, res, next) => {
